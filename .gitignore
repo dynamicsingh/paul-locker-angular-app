@@ -1,0 +1,7 @@
+bower_components
+node_modules
+.md
+.idea/
+dist.dev
+dist.prod
+README.md

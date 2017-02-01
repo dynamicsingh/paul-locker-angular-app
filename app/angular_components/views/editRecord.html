@@ -1,0 +1,106 @@
+<div ng-controller="DashboardCtrl">
+
+  <div class="row margin_top_20">
+    <!--<div class="col-lg-3"><button class="btn btn-default" data-animation="am-fade-and-slide-top" data-template-url="./angular_components/views/modal/add.tpl.html" bs-modal="modal" html="true">Add</button></div>-->
+    <div class="col-lg-3" ng-click="showDashboard()"><button class="btn btn-default" >Show Records</button></div>
+
+  </div>
+
+
+  <div class="margin_top_50 margin_bottom_50">
+    <div class="row">
+    <div class="row">
+      <!--<button type="button" class="btn btn-default select-btn" ng-model="selectedIcon" data-html="1" bs-options="icon.value as icon.label for icon in icons" bs-select>-->
+      <!--Action <span class="caret"></span>-->
+      <!--</button>-->
+      <div class="col-md-3">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.customer_id" required>
+          <hr>
+          <label>Customer ID</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30_sm_md">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.ac_number" required>
+          <hr>
+          <label>Account Number</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30_sm_md">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.amount" required>
+          <hr>
+          <label>Amount</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30_sm_md">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.rate_of_interest" required>
+          <hr>
+          <label>Rate of Interest</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_38">
+        <fieldset class="material">
+          <input type="text" class="form-control" ng-model="customer.deposit_date" name="date" bs-datepicker ng-focus="true">
+          <hr>
+          <label>Deposite Date</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_38">
+        <fieldset class="material">
+          <input type="text" class="form-control" ng-model="customer.maturity_date" name="date" ng-change="period(customer.deposit_date,customer.maturity_date)" bs-datepicker ng-focus="true">
+          <hr>
+          <label>Maturity Date</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.period" required>
+          <hr>
+          <label>Period</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.maturity_amount" required>
+          <hr>
+          <label>Maturity Amount</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.name" required>
+          <hr>
+          <label>Name</label>
+        </fieldset>
+      </div>
+      <div class="col-md-3 margin_top_30">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.pan_number" required>
+          <hr>
+          <label>PAN Number</label>
+        </fieldset>
+      </div>
+      <div class="col-md-6 margin_top_30">
+        <fieldset class="material">
+          <input type="text" ng-model="customer.branch" required>
+          <!--<textarea type="text" rows="1" ng-model="customer.branch" required></textarea>-->
+          <hr>
+          <label>Branch</label>
+        </fieldset>
+      </div>
+
+    </div>
+    <div class="row">
+      <br>
+      <div class="col-md-3" ng-show="Iswarning">
+        <p  class="warning">{{warning}}</p>
+      </div>
+    </div>
+    <button class="btn btn-default margin_top_30" ng-click="updateRecord()">Update</button>
+
+  </div>
+
+</div>

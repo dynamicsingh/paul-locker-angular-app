@@ -1,0 +1,719 @@
+<style>
+
+  .table-hover > tbody > tr:hover > td,
+  .table-hover > tbody > tr:hover > th {
+    background-color: rgba(0, 0, 0, 0.12);
+    cursor: pointer !important;
+  }
+
+  .table-striped > tbody > tr:nth-child(odd) > td,
+  .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #F7F7F7 !important;
+  }
+  .table-hover > tbody > tr:hover > td,
+  .table-hover > tbody > tr:hover > th {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+  }
+
+  //responsive table css
+    table {
+    //border: 1px solid #ccc;
+      width: 100%;
+      margin:0;
+      padding:0;
+      border-collapse: collapse;
+      border-spacing: 0;
+      background: #fff !important;
+    }
+  table thead{
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  table th, table td {
+    padding: 10px !important;
+    text-align: center;
+    line-height: 1.6 !important;
+  }
+
+  table th {
+    letter-spacing: 1px !important;
+    font-size: 13px !important;
+    font-weight: 200 !important;
+    line-height: 1.6 !important;
+  }
+
+  table tr {
+  //border: 1px solid #ddd !important;
+    padding: 5px !important;
+    font-size:13px !important;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) {
+    background:rgba(0,0,0,0.25) !important;
+
+  }
+  .table-striped > tbody > tr:nth-of-type(even) {
+    background:rgba(9,9,9,0.1) !important;
+  }
+
+  .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+    background:transparent !important;
+    color:#fff !important;
+  a{
+    color:#fff;
+  }
+  }
+
+  .table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
+    background:transparent !important;
+    color:#fff !important;
+  }
+
+  @media screen and (min-width: 1000px) {
+    .table-hover > tbody > tr:hover{
+      background:rgba(0,0,0,0.5) !important;
+    }
+  }
+
+
+  @media screen and (max-width: 1000px) {
+
+    table {
+      width:100%;
+      border: 0 !important;
+    }
+
+    table thead {
+      display: none !important;
+    }
+
+    table tr {
+      margin-bottom: 10px !important;
+      display: block !important;
+      padding: 0 !important;
+      border-bottom: 2px solid #ddd !important;
+    }
+
+    table td {
+      display: block !important;
+      text-align: right !important;
+      font-size: 13px !important;
+      border-bottom: 1px dotted #ccc !important;
+    }
+
+    table td:last-child {
+      border-bottom: 0 !important;
+    }
+
+    table td:before {
+      content: attr(data-label);
+      float: left !important;
+      font-weight: 400 !important;
+    }
+  }
+
+
+</style>
+<div ng-controller="DashboardCtrl">
+  <div class="row margin_top_20">
+    <div class="col-lg-5 pull-right">
+      <div class="input-group add-on">
+        <input class="form-control search-box" placeholder="Search" ng-model="searchFilter" name="srch-term" id="srch-term" type="text" ng-change="showSearchTab()">
+        <div class="input-group-btn">
+          <button class="btn btn-default search-box-button bg-grey" ng-if="searchFilter.length>0" ng-click="cancelQuery()" ><i class="fa fa-times"></i></button>
+          <button class="btn btn-default search-box-button bg-black" ng-disabled="searchFilter.length==0" ng-click="searchQuery()"><i class="glyphicon glyphicon-search"></i></button>
+        </div>
+    </div>
+    </div>
+    <div class="col-lg-3 padding_top_60_sm_md" ><button class="btn btn-default" ng-click="showAddScreen()">Add Record</button></div>
+
+  </div>
+  <div class="margin_top_50">
+    <div class="row top_panel_icons">
+      <div class="col-lg-2">
+          <span data-placement="bottom" data-type="info" data-container="body" data-trigger="hover" data-title="Total number of records" html="true" bs-tooltip>
+              <i class="mdi mdi-account-card-details"></i>
+              <span class="font_16 white-text" ng-if="allDataLength>0">{{allDataLength}} <span ng-if="allDataLength==1">Record</span>
+              <span ng-if="allDataLength>1">Records</span></span>
+            <span class="font_16 white-text" ng-if="allDataLength==0 || allDataLength==undefined">{{allDataLength}} 0 Record</span>
+          </span>
+      </div>
+      <div class="col-lg-3">
+          <span data-placement="bottom" data-type="info" data-container="body" data-trigger="hover" data-title="Total deposited amount for all records : {{allSum | number | dataHandler:'0'}}" html="true" bs-tooltip>
+            <i class="mdi mdi-currency-inr"></i>
+            <span class="font_16 white-text">{{allSum | americanNumber:3:'0'}} total deposited</span>
+          </span>
+      </div>
+      <div class="col-lg-3">
+          <span data-placement="bottom" data-type="info" data-container="body" data-trigger="hover" data-title="Total maturing amount for all records : {{maturingSum | number | dataHandler:'0'}}" html="true" bs-tooltip>
+            <i class="mdi mdi-currency-inr"></i>
+            <span class="font_16 white-text">{{maturingSum | americanNumber:3:'0'}} total maturing</span>
+          </span>
+      </div>
+      <div class="col-lg-2">
+          <span data-placement="bottom" data-type="info" data-container="body" data-trigger="hover" data-title="Records Matured" html="true" bs-tooltip>
+            <i class="mdi mdi-star-circle"></i>
+            <span class="font_16 white-text">{{completedRecords | number | dataHandler:'0'}} Completed</span>
+          </span>
+      </div>
+      <div class="col-lg-2">
+          <span data-placement="bottom" data-type="info" data-container="body" data-trigger="hover" data-title="Records to be Matured" html="true" bs-tooltip>
+            <i class="mdi mdi-timelapse"></i>
+            <span class="font_16 white-text">{{allDataLength-completedRecords | number | dataHandler:'0'}} Pending</span>
+          </span>
+      </div>
+    </div>
+
+  </div>
+  <!-- bsActivePane is optional -->
+  <div class="margin_top_50" bsActivePane="0" bs-tabs>
+    <div ng-if="!searchResultsData" data-title="Today" name="Today" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!todaysData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="todaysData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-repeat="record in todaysData | filter:searchFilter">
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+
+
+
+            </tbody>
+          </table>
+          <center><div paging ng-if="todaysData"
+                       page="pageNumTodays"
+                       page-size="pageSize"
+                       total="todaysDataLength"
+                       show-prev-next="true"
+                       scroll-top="true"
+                       show-first-last="true"
+                       text-next-class="glyphicon glyphicon-chevron-right"
+                       text-prev-class="glyphicon glyphicon-chevron-left"
+                       text-first-class="glyphicon glyphicon-backward"
+                       text-last-class="glyphicon glyphicon-forward"
+                       paging-action="viewTodaysRecords(page)">
+          </div></center>
+
+        </div>
+      </div>
+    </div>
+    <div ng-if="!searchResultsData" data-title="3 Days" name="3 Days" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!threeDaysData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="threeDaysData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in threeDaysData | filter:searchFilter">
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <center><div paging ng-if="threeDaysData"
+                       page="pageNumNext3Days"
+                       page-size="pageSize"
+                       total="threeDaysDataLength"
+                       show-prev-next="true"
+                       scroll-top="true"
+                       show-first-last="true"
+                       text-next-class="glyphicon glyphicon-chevron-right"
+                       text-prev-class="glyphicon glyphicon-chevron-left"
+                       text-first-class="glyphicon glyphicon-backward"
+                       text-last-class="glyphicon glyphicon-forward"
+                       paging-action="viewNext3DaysRecords(page)">
+          </div></center>
+        </div>
+      </div>
+    </div>
+    <div ng-if="!searchResultsData" data-title="7 Days" name="7 Days" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!sevenDaysData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="sevenDaysData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in sevenDaysData | filter:searchFilter">
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <center><div paging ng-if="sevenDaysData"
+                       page="pageNumNext7Days"
+                       page-size="pageSize"
+                       total="sevenDaysDataLength"
+                       show-prev-next="true"
+                       scroll-top="true"
+                       show-first-last="true"
+                       text-next-class="glyphicon glyphicon-chevron-right"
+                       text-prev-class="glyphicon glyphicon-chevron-left"
+                       text-first-class="glyphicon glyphicon-backward"
+                       text-last-class="glyphicon glyphicon-forward"
+                       paging-action="viewNext7DaysRecords(page)">
+          </div></center>
+
+        </div>
+      </div>
+    </div>
+    <div ng-if="!searchResultsData" data-title="15 Days" name="15 Days" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!fifteenDaysData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="fifteenDaysData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in fifteenDaysData | filter:searchFilter" >
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <center><div paging ng-if="fifteenDaysData"
+                       page="pageNumNext15Days"
+                       page-size="pageSize"
+                       total="fifteenDaysDataLength"
+                       show-prev-next="true"
+                       scroll-top="true"
+                       show-first-last="true"
+                       text-next-class="glyphicon glyphicon-chevron-right"
+                       text-prev-class="glyphicon glyphicon-chevron-left"
+                       text-first-class="glyphicon glyphicon-backward"
+                       text-last-class="glyphicon glyphicon-forward"
+                       paging-action="viewNext15DaysRecords(page)">
+          </div></center>
+        </div>
+      </div>
+    </div>
+    <div ng-if="!searchResultsData" data-title="All" name="All" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!allDaysData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="allDaysData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in allDaysData | filter:searchFilter">
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <center>
+            <div paging ng-if="allDaysData"
+                       page="pageNumAllDays"
+                       page-size="pageSize"
+                       total="allDataLength"
+                       show-prev-next="true"
+                       scroll-top="true"
+                       show-first-last="true"
+                       text-next-class="glyphicon glyphicon-chevron-right"
+                       text-prev-class="glyphicon glyphicon-chevron-left"
+                       text-first-class="glyphicon glyphicon-backward"
+                       text-last-class="glyphicon glyphicon-forward"
+                       paging-action="viewAllRecords(page)">
+            </div>
+          </center>
+        </div>
+      </div>
+    </div>
+    <div ng-if="searchResultsData" data-title="Search Results..." name="Search Results" bs-pane>
+      <div class="tab-content-box">
+        <div class="tab-content">
+          <div ng-if="!searchResultsData" class="row margin_top_50">
+            <center>
+              <h4>No data in this category</h4>
+            </center>
+          </div>
+          <table ng-if="searchResultsData" class="table-responsive shadow-z-1 table-hover table-striped margin_top_40 margin_bottom_40">
+            <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Account Number</th>
+              <th>Amount</th>
+              <th>Rate of Interest</th>
+              <th>Deposite Date</th>
+              <th>Maturity Date</th>
+              <th>Period</th>
+              <th>Maturity Amount</th>
+              <th>Name</th>
+              <th>PAN No.</th>
+              <th>Branch</th>
+              <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="record in searchResultsData">
+              <td data-label="Customer ID" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.customer_id}}
+              </td>
+              <td data-label="Account Number" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.ac_number}}
+              </td>
+              <td data-label="Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.amount}}
+              </td>
+              <td data-label="Rate of Interest" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.rate_of_interest}}%
+              </td>
+              <td data-label="Deposite Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.deposit_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Maturity Date" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_date | date:"d MMM yyyy"}}
+              </td>
+              <td data-label="Period" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.period}}
+              </td>
+              <td data-label="Maturity Amount" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.maturity_amount}}
+              </td>
+              <td data-label="Name" ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.name}}
+              </td>
+              <td data-label="PAN No." ng-if="record.isDelete==false || screenSize1000==false">
+                {{record.pan_number}}
+              </td>
+              <td data-label="Branch" ng-if="record.isDelete==false || screenSize1000==false">
+                <i class="fa fa-info-circle" data-placement="bottom" data-type="info" data-container="body" data-trigger="click" data-title="{{record.branch}}" html="true" bs-tooltip></i>
+              </td>
+              <td data-label="Action" ng-if="record.isDelete==false">
+                <i class="fa fa-pencil margin_right_5" ng-click="showEditScreen(record.id)"></i>
+                <i class="fa fa-trash margin_left_5" ng-click="showDeleteScreen(record)"></i>
+              </td>
+              <td class="height61" colspan="{{colSpanVal}}" ng-if="record.isDelete==true">
+                <span class="font_16 delete-text">Do you want to delete</span>
+                <button class="margin_left_5 margin_right_5 btn btn-success" ng-click="deleteRecord(record.id)">Yes</button>
+                <button class="margin_left_5 margin_right_5 btn btn-danger" ng-click="showDeleteScreen(record)">No</button>
+                <i ng-if="screenSize1000==true" class="fa fa-times margin_left_5 margin_top_10 pull-right" ng-click="showDeleteScreen(record)"></i>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <center>
+            <!--<div paging ng-if="allDaysData"-->
+                       <!--page="pageNumAllDays"-->
+                       <!--page-size="pageSize"-->
+                       <!--total="allDataLength"-->
+                       <!--show-prev-next="true"-->
+                       <!--scroll-top="true"-->
+                       <!--show-first-last="true"-->
+                       <!--text-next-class="glyphicon glyphicon-chevron-right"-->
+                       <!--text-prev-class="glyphicon glyphicon-chevron-left"-->
+                       <!--text-first-class="glyphicon glyphicon-backward"-->
+                       <!--text-last-class="glyphicon glyphicon-forward"-->
+                       <!--paging-action="viewAllRecords(page)">-->
+            <!--</div>-->
+          </center>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--bsActivePane Ends --->
+
+
+</div>
+
