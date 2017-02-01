@@ -9,13 +9,12 @@ Documentation
 -------------
 
 **Technology Stack  Used**
-HTML
-CSS
-Angular 1.5.5 for interacting with backend
-PHP 5.0 for mysql query operations
-Mysql - Db file included with .sql extension
 
-
+ - HTML
+ -  CSS 
+ - Angular 1.5.5 for interacting with backend 
+ - PHP 5.0 for mysql query operations
+ - Mysql - Db file included with .sql extension
 
 > **Installation guide:**
 
