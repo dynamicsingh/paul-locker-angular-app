@@ -1,10 +1,8 @@
 Welcome to Paul Locker Angular App!
 ===================
-#
+***Completion date:** 12 Dec 2014*
+
 Angular web app for bankers for managing Fixed Deposits and getting reminders for them when they are about to mature on their email which is done using cron job.
-
-
-----------
 
 
 Documentation
